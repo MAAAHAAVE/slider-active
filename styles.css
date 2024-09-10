@@ -1,0 +1,98 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+  /* variables */
+}
+#root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+body {
+  display: flex;
+  padding: 0 35px;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: #343f4f;
+}
+button {
+  border: none;
+  background-color: transparent;
+}
+.wrapper {
+  position: relative;
+}
+.wrapper .fa-solid {
+  bottom: -60px;
+  height: 43px;
+  width: 43px;
+  cursor: pointer;
+  font-size: 1.5rem;
+  text-align: center;
+  line-height: 45px;
+  background-color: #fff;
+  box-shadow: #000000 0 5px 10px 2px;
+  transition: all 0.1s;
+}
+.left {
+  display: none;
+}
+/* .right {
+
+} */
+.wrapper .buttons {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+}
+.wrapper .carousel {
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: pointer;
+  font-size: 0;
+  scroll-behavior: smooth;
+}
+.carousel.dragging {
+  cursor: grab;
+  scroll-behavior: auto;
+}
+.carousel.dragging img {
+  pointer-events: none;
+}
+.carousel img {
+  height: 340px;
+  object-fit: cover;
+  margin-left: 14px;
+  width: calc(100% / 3);
+  scroll-snap-align: start;
+}
+img::selection {
+  background: transparent;
+}
+.carousel img:first-child {
+  margin-left: 0;
+}
+.fa-solid:hover {
+  transform: translateY(-2px);
+  box-shadow: #000000 0 9px 10px 2px;
+}
+.fa-solid:active {
+  transform: translateY(2px);
+  box-shadow: #000000 0 0 0 0;
+}
+
+@media screen and (max-width: 900px) {
+  .carousel img {
+    width: calc(100% / 2);
+  }
+}
+@media screen and (max-width: 600px) {
+  .carousel img {
+    width: 100%;
+  }
+}
