@@ -1,8 +1,6 @@
 const carousel = document.querySelector(".carousel"),
-  firstImg = carousel.querySelectorAll("img")[0],
+  firstItem = carousel.querySelectorAll(".carousel-item")[0],
   arrowIcons = document.querySelectorAll(".wrapper .fa-solid");
-
-const scrollLeft = Math.round(carousel.scrollLeft);
 
 let isDragStart = false,
   isDragging = false,
@@ -12,59 +10,31 @@ let isDragStart = false,
 
 const showHideIcons = () => {
   let scrollWidth = carousel.scrollWidth - carousel.clientWidth;
-  setTimeout(() => {
-    arrowIcons[0].style.display = carousel.scrollLeft == 0 ? "none" : "block";
-    arrowIcons[1].style.display =
-      carousel.scrollLeft == scrollWidth ? "none" : "block";
-  }, 50);
+  arrowIcons[0].style.display = carousel.scrollLeft == 0 ? "none" : "block";
+  arrowIcons[1].style.display =
+    carousel.scrollLeft == scrollWidth ? "none" : "block";
 };
 
 arrowIcons.forEach((icon) => {
   icon.addEventListener("click", () => {
-    let firstImgWidth = firstImg.clientWidth + 14;
-    let imagesToScroll = Math.round(positionDiff / firstImgWidth);
-    carousel.scrollLeft += icon.id == "left" ? -firstImgWidth : firstImgWidth;
+    let firstItemWidth = firstItem.clientWidth + 14;
+    carousel.scrollLeft += icon.id == "left" ? -firstItemWidth : firstItemWidth;
     setTimeout(() => showHideIcons(), 250);
   });
 });
-
-const autoSlide = () => {
-  // if (carousel.scrollLeft == carousel.scrollWidth - carousel.clientWidth)
-  //   return;
-
-  if (carousel.scrollLeft == 0) {
-    return (carousel.scrollLeft = 0);
-  }
-  if (carousel.scrollLeft == carousel.scrollWidth) {
-    return (carousel.scrollLeft = carousel.scrollWidth);
-  }
-
-  positionDiff = Math.abs(positionDiff);
-  let firstImgWidth = firstImg.clientWidth; //+14
-  let valDifference =
-    positionDiff > firstImgWidth
-      ? firstImgWidth * imagesToScroll - positionDiff
-      : firstImgWidth - positionDiff;
-
-  if (carousel.scrollLeft > previewScrollLeft) {
-    return (carousel.scrollLeft +=
-      positionDiff > firstImgWidth / 3 ? valDifference : -positionDiff);
-  }
-  carousel.scrollLeft -=
-    positionDiff > firstImgWidth / 3 ? valDifference : -positionDiff;
-};
 
 const dragStart = (e) => {
   isDragStart = true;
   previewX = e.pageX || e.touches[0].pageX;
   previewScrollLeft = carousel.scrollLeft;
+  carousel.classList.add("dragging");
+  document.body.style.userSelect = "none";
 };
 
 const dragging = (e) => {
   if (!isDragStart) return;
-  // e.preventDefault();
+  e.preventDefault();
   isDragging = true;
-  carousel.classList.add("dragging");
   positionDiff = (e.pageX || e.touches[0].pageX) - previewX;
   carousel.scrollLeft = previewScrollLeft - positionDiff;
   showHideIcons();
@@ -73,37 +43,52 @@ const dragging = (e) => {
 const dragStop = () => {
   isDragStart = false;
   carousel.classList.remove("dragging");
+  document.body.style.userSelect = "auto";
 
   if (!isDragging) return;
   isDragging = false;
+
   autoSlide();
+};
+
+const autoSlide = () => {
+  const itemWidth = firstItem.clientWidth + 14;
+  const scrollLeft = carousel.scrollLeft;
+  const index = Math.round(scrollLeft / itemWidth);
+  carousel.scrollLeft = index * itemWidth;
+};
+
+const handleMouseUp = () => {
+  dragStop();
+  document.removeEventListener("mouseup", handleMouseUp);
+  document.removeEventListener("mousemove", dragging);
 };
 
 showHideIcons();
 carousel.addEventListener("scroll", showHideIcons);
 
-carousel.addEventListener("mousedown", dragStart);
+carousel.addEventListener("mousedown", (e) => {
+  dragStart(e);
+  document.addEventListener("mouseup", handleMouseUp);
+  document.addEventListener("mousemove", dragging);
+});
+
 carousel.addEventListener("touchstart", dragStart);
-
-carousel.addEventListener("mousemove", dragging);
 carousel.addEventListener("touchmove", dragging);
-
-carousel.addEventListener("mouseup", dragStop);
-carousel.addEventListener("mouseleave", dragStop);
 carousel.addEventListener("touchend", dragStop);
 
-// function disableSelection(target) {
-//   if (typeof target.onselectstart != "undefined")
-//     target.onselectstart = function () {
-//       return false;
-//     };
-//   else if (typeof target.style.MozUserSelect != "undefined")
-//     target.style.MozUserSelect = "none";
-//   else
-//     target.onmousedown = function () {
-//       return false;
-//     };
+document.addEventListener("mousedown", (e) => {
+  if (e.target.closest(".carousel")) {
+    dragStart(e);
+    document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("mousemove", dragging);
+  }
+});
 
-//   target.style.cursor = "default";
-// }
-// disableSelection(document.querySelector("img"));
+document.addEventListener("touchstart", (e) => {
+  if (e.target.closest(".carousel")) {
+    dragStart(e);
+    document.addEventListener("touchend", dragStop);
+    document.addEventListener("touchmove", dragging);
+  }
+});
